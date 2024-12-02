@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Nature Learning Landscape</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        #landscape {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 30%, #F0F9FF 100%);
+            position: relative;
+        }
+        .cloud {
+            position: absolute;
+            opacity: 0.7;
+            transition: transform 2s ease;
+        }
+        .cloud:hover {
+            transform: scale(1.1);
+        }
+        .flower {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .flower:hover {
+            transform: scale(1.2) rotate(15deg);
+        }
+        .bird {
+            transition: transform 0.5s ease;
+            cursor: pointer;
+        }
+        .bird:hover {
+            transform: scale(1.2);
+        }
+        #sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .book-shape {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .book-shape:hover {
+            transform: rotate(5deg) scale(1.1);
+            fill-opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div id="landscape">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+            <!-- Sun with Rays -->
+            <defs>
+                <radialGradient id="sunGradient">
+                    <stop offset="10%" stop-color="#FFD700"/>
+                    <stop offset="95%" stop-color="#FFA500"/>
+                </radialGradient>
+            </defs>
+            <g id="sun">
+                <circle cx="200" cy="150" r="80" fill="url(#sunGradient)" class="sun"/>
+                <g class="sun-rays">
+                    <line x1="200" y1="50" x2="200" y2="80" stroke="#FFD700" stroke-width="5"/>
+                    <line x1="200" y1="220" x2="200" y2="250" stroke="#FFD700" stroke-width="5"/>
+                    <line x1="100" y1="150" x2="130" y2="150" stroke="#FFD700" stroke-width="5"/>
+                    <line x1="270" y1="150" x2="300" y2="150" stroke="#FFD700" stroke-width="5"/>
+                    <line x1="130" y1="80" x2="150" y2="100" stroke="#FFD700" stroke-width="5"/>
+                    <line x1="250" y1="80" x2="230" y2="100" stroke="#FFD700" stroke-width="5"/>
+                    <line x1="130" y1="220" x2="150" y2="200" stroke="#FFD700" stroke-width="5"/>
+                    <line x1="250" y1="220" x2="230" y2="200" stroke="#FFD700" stroke-width="5"/>
+                </g>
+            </g>
+            
+            <!-- Clouds -->
+            <g class="cloud" transform="translate(500, 100)">
+                <path d="M0,0 Q50,-50 100,0 T200,0" fill="#FFFFFF"/>
+            </g>
+            <g class="cloud" transform="translate(900, 200)">
+                <path d="M0,0 Q50,-50 100,0 T200,0" fill="#FFFFFF"/>
+            </g>
+            
+            <!-- Mountains -->
+            <path d="M0,500 L300,200 L600,500 Z" fill="#8B4513" opacity="0.7"/>
+            <path d="M600,500 L900,250 L1200,500 Z" fill="#A0522D" opacity="0.6"/>
+            
+            <!-- Meadow -->
+            <path d="M0,500 L1200,500 L1200,800 L0,800 Z" fill="#90EE90"/>
+            
+            <!-- Interactive Birds -->
+            <g class="bird" transform="translate(600, 150)">
+                <path d="M0,0 Q10,-10 20,0 Q30,10 40,0" stroke="#333" stroke-width="3" fill="none"/>
+                <path d="M50,10 Q60,0 70,10 Q80,20 90,10" stroke="#333" stroke-width="3" fill="none"/>
+            </g>
+            <g class="bird" transform="translate(300, 100)">
+                <path d="M0,0 Q10,-10 20,0 Q30,10 40,0" stroke="#333" stroke-width="3" fill="none"/>
+                <path d="M50,10 Q60,0 70,10 Q80,20 90,10" stroke="#333" stroke-width="3" fill="none"/>
+            </g>
+            
+            <!-- Interactive Flowers -->
+            <g class="flower" transform="translate(300, 600)">
+                <circle cx="0" cy="0" r="15" fill="#FF69B4"/>
+                <circle cx="-10" cy="-10" r="7" fill="#FF1493"/>
+                <circle cx="10" cy="-10" r="7" fill="#FF1493"/>
+                <circle cx="0" cy="-20" r="7" fill="#FF1493"/>
+            </g>
+            <g class="flower" transform="translate(500, 650)">
+                <circle cx="0" cy="0" r="20" fill="#FF4500"/>
+                <circle cx="-15" cy="-15" r="10" fill="#FF6347"/>
+                <circle cx="15" cy="-15" r="10" fill="#FF6347"/>
+                <circle cx="0" cy="-30" r="10" fill="#FF6347"/>
+            </g>
+            
+            <!-- Trees -->
+            <g transform="translate(100, 500)">
+                <rect x="0" y="0" width="30" height="100" fill="#8B4513"/>
+                <path d="M15,-100 L-50,0 L80,0 Z" fill="#228B22"/>
+            </g>
+            <g transform="translate(900, 500)">
+                <rect x="0" y="0" width="30" height="100" fill="#8B4513"/>
+                <path d="M15,-100 L-50,0 L80,0 Z" fill="#228B22"/>
+            </g>
+            
+            <!-- Abstract Learning Symbols -->
+            <g class="book-shape" transform="translate(700, 550)">
+                <rect x="0" y="0" width="80" height="100" rx="10" fill="#D2B48C" fill-opacity="0.5"/>
+            </g>
+            <g class="book-shape" transform="translate(420, 570)">
+                <rect x="0" y="0" width="60" height="80" rx="8" fill="#DEB887" fill-opacity="0.5"/>
+            </g>
+        </svg>
+        <canvas id="sparkle"></canvas>
+    </div>
+
+    <script>
+        // Interactive Sparkle Effect
+        const sparkleCanvas = document.getElementById('sparkle');
+        const sparkleCtx = sparkleCanvas.getContext('2d');
+        sparkleCanvas.width = window.innerWidth;
+        sparkleCanvas.height = window.innerHeight;
+
+        const sparkles = [];
+        const landscape = document.getElementById('landscape');
+
+        function createSparkle(x, y) {
+            const sparkle = {
+                x, y,
+                radius: Math.random() * 3 + 1,
+                color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+                opacity: 1,
+                speed: Math.random() * 2 + 1
+            };
+            sparkles.push(sparkle);
+        }
+
+        function animateSparkles() {
+            sparkleCtx.clearRect(0, 0, sparkleCanvas.width, sparkleCanvas.height);
+            
+            for (let i = sparkles.length - 1; i >= 0; i--) {
+                const sparkle = sparkles[i];
+                
+                sparkleCtx.beginPath();
+                sparkleCtx.arc(sparkle.x, sparkle.y, sparkle.radius, 0, Math.PI * 2);
+                sparkleCtx.fillStyle = `${sparkle.color}${Math.floor(sparkle.opacity * 255).toString(16)}`;
+                sparkleCtx.fill();
+                
+                sparkle.y -= sparkle.speed;
+                sparkle.opacity -= 0.02;
+                
+                if (sparkle.opacity <= 0) {
+                    sparkles.splice(i, 1);
+                }
+            }
+            
+            requestAnimationFrame(animateSparkles);
+        }
+
+        landscape.addEventListener('click', (event) => {
+            const x = event.clientX;
+            const y = event.clientY;
+            
+            for (let i = 0; i < 5; i++) {
+                createSparkle(x + (Math.random() * 40 - 20), y + (Math.random() * 40 - 20));
+            }
+        });
+
+        // Bird Animation
+        const birds = document.querySelectorAll('.bird');
+        birds.forEach(bird => {
+            bird.addEventListener('click', () => {
+                bird.classList.add('fly-away');
+                setTimeout(() => {
+                    bird.classList.remove('fly-away');
+                }, 2000);
+            });
+        });
+
+        // Cloud Movement
+        const clouds = document.querySelectorAll('.cloud');
+        clouds.forEach(cloud => {
+            cloud.addEventListener('mouseover', () => {
+                cloud.style.transform = 'translateX(50px)';
+            });
+            cloud.addEventListener('mouseout', () => {
+                cloud.style.transform = 'translateX(0)';
+            });
+        });
+
+        animateSparkles();
+
+        // Responsive Adjustments
+        window.addEventListener('resize', () => {
+            sparkleCanvas.width = window.innerWidth;
+            sparkleCanvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

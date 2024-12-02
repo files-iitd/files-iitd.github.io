@@ -234,4 +234,27 @@
         const logo = document.querySelector('.logo');
 
         window.addEventListener('mousemove', (e) => {
-            cursor.style.transform = `translate(
+            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            
+            // Add slight delay to trail
+            setTimeout(() => {
+                cursorTrail.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            }, 100);
+        });
+
+        // Initialize canvas
+        const artCanvas = new ArtCanvas(document.getElementById('artCanvas'));
+
+        // Add hover effect for logo
+        logo.addEventListener('mouseenter', () => {
+            cursor.style.transform += ' scale(1.5)';
+            cursorTrail.style.opacity = '0';
+        });
+
+        logo.addEventListener('mouseleave', () => {
+            cursor.style.transform = cursor.style.transform.replace(' scale(1.5)', '');
+            cursorTrail.style.opacity = '1';
+        });
+    </script>
+</body>
+</html>

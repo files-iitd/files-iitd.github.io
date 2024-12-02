@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Art Cosmos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-space-dark: #0C0C1E;
+            --nebula-purple: #4A0E4E;
+            --cosmic-blue: #1A2980;
+            --stellar-teal: #26D0CE;
+            --solar-orange: #FF6B6B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            background: var(--deep-space-dark);
+            overflow: hidden;
+            cursor: none;
+        }
+
+        #mainCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #overlayCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(22, 22, 44, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 10px 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .control-panel:hover {
+            background: rgba(22, 22, 44, 0.9);
+        }
+
+        .control-button {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        .cosmic-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            mix-blend-mode: screen;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out;
+        }
+
+        #artControls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .control-slider {
+            appearance: none;
+            width: 200px;
+            height: 10px;
+            background: linear-gradient(to right, var(--nebula-purple), var(--stellar-teal));
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            border-radius: 5px;
+        }
+
+        .control-slider:hover {
+            opacity: 1;
+        }
+
+        .control-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: white;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mainCanvas"></canvas>
+    <canvas id="overlayCanvas"></canvas>
+    <div class="cosmic-cursor"></div>
+
+    <div id="artControls">
+        <input type="range" min="50" max="500" value="200" class="control-slider" id="particleCountSlider">
+        <input type="range" min="0.1" max="2" step="0.1" value="1" class="control-slider" id="noiseIntensitySlider">
+    </div>
+
+    <div class="control-panel">
+        <button class="control-button" id="randomizeBtn">Randomize</button>
+        <button class="control-button" id="pauseBtn">Pause</button>
+        <button class="control-button" id="saveBtn">Save Artwork</button>
+    </div>
+
+    <script>
+        class CosmicArtCanvas {
+            constructor(mainCanvas, overlayCanvas) {
+                this.mainCanvas = mainCanvas;
+                this.overlayCanvas = overlayCanvas;
+                this.mainCtx = mainCanvas.getContext('2d');
+                this.overlayCtx = overlayCanvas.getContext('2d');
+                
+                this.particles = [];
+                this.connections = [];
+                this.noiseScale = 0.01;
+                this.time = 0;
+                this.isPaused = false;
+
+                this.resizeCanvas();
+                this.setupEventListeners();
+                this.createParticles(200);
+                this.animate();
+            }
+
+            resizeCanvas() {
+                this.mainCanvas.width = window.innerWidth;
+                this.mainCanvas.height = window.innerHeight;
+                this.overlayCanvas.width = window.innerWidth;
+                this.overlayCanvas.height = window.innerHeight;
+            }
+
+            setupEventListeners() {
+                window.addEventListener('resize', () => this.resizeCanvas());
+                
+                // Particle count slider
+                document.getElementById('particleCountSlider').addEventListener('input', (e) => {
+                    this.recreateParticles(parseInt(e.target.value));
+                });
+
+                // Noise intensity slider
+                document.getElementById('noiseIntensitySlider').addEventListener('input', (e) => {
+                    this.noiseScale = parseFloat(e.target.value) * 0.01;
+                });
+
+                // Randomize button
+                document.getElementById('randomizeBtn').addEventListener('click', () => this.randomizeParticles());
+
+                // Pause button
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    this.isPaused = !this.isPaused;
+                    document.getElementById('pauseBtn').textContent = this.isPaused ? 'Resume' : 'Pause';
+                });
+
+                // Save artwork button
+                document.getElementById('saveBtn').addEventListener('click', () => this.saveArtwork());
+            }
+
+            createParticles(count) {
+                this.particles = [];
+                const colorPalette = [
+                    { start: 'rgba(74, 14, 78, 0.5)', end: 'rgba(74, 14, 78, 0)' },      // Nebula Purple
+                    { start: 'rgba(26, 41, 128, 0.5)', end: 'rgba(26, 41, 128, 0)' },    // Cosmic Blue
+                    { start: 'rgba(38, 208, 206, 0.5)', end: 'rgba(38, 208, 206, 0)' },  // Stellar Teal
+                    { start: 'rgba(255, 107, 107, 0.5)', end: 'rgba(255, 107, 107, 0)' } // Solar Orange
+                ];
+
+                for (let i = 0; i < count; i++) {
+                    const gradient = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                    this.particles.push({
+                        x: Math.random() * this.mainCanvas.width,
+                        y: Math.random() * this.mainCanvas.height,
+                        radius: Math.random() * 8 + 2,
+                        speedX: (Math.random() - 0.5) * 0.5,
+                        speedY: (Math.random() - 0.5) * 0.5,
+                        gradient: gradient,
+                        opacity: Math.random() * 0.7 + 0.3,
+                        noiseOffset: Math.random() * 1000,
+                        connectionStrength: []
+                    });
+                }
+            }
+
+            recreateParticles(count) {
+                this.createParticles(count);
+            }
+
+            randomizeParticles() {
+                this.particles.forEach(particle => {
+                    particle.x = Math.random() * this.mainCanvas.width;
+                    particle.y = Math.random() * this.mainCanvas.height;
+                    particle.speedX = (Math.random() - 0.5) * 0.5;
+                    particle.speedY = (Math.random() - 0.5) * 0.5;
+                });
+            }
+
+            calculateConnections() {
+                this.connections = [];
+                const connectionThreshold = 150;
+
+                for (let i = 0; i < this.particles.length; i++) {
+                    const particle = this.particles[i];
+                    particle.connectionStrength = [];
+
+                    for (let j = i + 1; j < this.particles.length; j++) {
+                        const otherParticle = this.particles[j];
+                        const dx = particle.x - otherParticle.x;
+                        const dy = particle.y - otherParticle.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < connectionThreshold) {
+                            const strength = 1 - (distance / connectionThreshold);
+                            this.connections.push({
+                                start: particle,
+                                end: otherParticle,
+                                strength: strength
+                            });
+
+                            particle.connectionStrength.push(strength);
+                            otherParticle.connectionStrength.push(strength);
+                        }
+                    }
+                }
+            }
+
+            drawParticles() {
+                this.mainCtx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+
+                // Draw connections first (underneath particles)
+                this.calculateConnections();
+                this.connections.forEach(connection => {
+                    const alphaStrength = connection.strength * 0.5;
+                    this.mainCtx.beginPath();
+                    this.mainCtx.moveTo(connection.start.x, connection.start.y);
+                    this.mainCtx.lineTo(connection.end.x, connection.end.y);
+                    this.mainCtx.strokeStyle = `rgba(255,255,255,${alphaStrength})`;
+                    this.mainCtx.lineWidth = connection.strength * 2;
+                    this.mainCtx.stroke();
+                });
+
+                // Draw particles
+                this.particles.forEach(particle => {
+                    // Noise-based movement with increased complexity
+                    particle.x += particle.speedX + 
+                        Math.sin(particle.noiseOffset * this.noiseScale) * 0.5;
+                    particle.y += particle.speedY + 
+                        Math.cos(particle.noiseOffset * this.noiseScale) * 0.5;
+                    particle.noiseOffset += 0.02;
+
+                    // Wrap around screen edges
+                    if (particle.x < 0) particle.x = this.mainCanvas.width;
+                    if (particle.x > this.mainCanvas.width) particle.x = 0;
+                    if (particle.y < 0) particle.y = this.mainCanvas.height;
+                    if (particle.y > this.mainCanvas.height) particle.y = 0;
+
+                    // Create radial gradient
+                    const gradient = this.mainCtx.createRadialGradient(
+                        particle.x, particle.y, 0, 
+                        particle.x, particle.y, particle.radius * 3
+                    );
+                    gradient.addColorStop(0, particle.gradient.start);
+                    gradient.addColorStop(1, particle.gradient.end);
+
+                    // Draw particle
+                    this.mainCtx.beginPath();
+                    this.mainCtx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                    this.mainCtx.fillStyle = gradient;
+                    this.mainCtx.globalAlpha = particle.opacity;
+                    this.mainCtx.fill();
+                });
+            }
+
+            drawOverlay() {
+                this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
+                
+                // Add some subtle noise/grain effect
+                this.overlayCtx.fillStyle = 'rgba(0,0,0,0.05)';
+                for (let i = 0; i < this.overlayCanvas.width; i += 4) {
+                    for (let j = 0; j < this.overlayCanvas.height; j += 4) {
+                        if (Math.random() > 0.9) {
+                            this.overlayCtx.fillRect(i, j, 2, 2);
+                        }
+                    }
+                }
+            }
+
+            saveArtwork() {
+                // Combine both canvases for a complete artwork save
+                const combinedCanvas = document.createElement('canvas');
+                combinedCanvas.width = this.mainCanvas.width;
+                combinedCanvas.height = this.mainCanvas.height;
+                const combinedCtx = combinedCanvas.getContext('2d');
+
+                // Draw main canvas
+                combinedCtx.drawImage(this.mainCanvas, 0, 0);
+                // Draw overlay on top
+                combinedCtx.globalAlpha = 0.5;
+                combinedCtx.drawImage(this.overlayCanvas, 0, 0);
+
+                // Convert to data URL and trigger download
+                const dataURL = combinedCanvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `cosmic-art-${new Date().toISOString()}.png`;
+                link.href = dataURL;
+                link.click();
+            }
+
+            animate() {
+                if (!this.isPaused) {
+                    this.drawParticles();
+                    this.drawOverlay();
+                    this.time += 0.01;
+                }
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // Cosmic Cursor Effect
+        const cosmicCursor = document.querySelector('.cosmic-cursor');
+        window.addEventListener('mousemove', (e) => {
+            cosmicCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        });
+
+        // Initialize the canvas
+        const mainCanvas = document.getElementById('mainCanvas');
+        const overlayCanvas = document.getElementById('overlayCanvas');
+        const artCanvas = new CosmicArtCanvas(mainCanvas, overlayCanvas);
+    </script>
+</body>
+</html>
