@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Files IITD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1A5F7A;
+            --secondary-color: #159895;
+            --accent-color: #57C5B6;
+            --background-color: #F8F9FA;
+            --text-color: #2C3333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .canvas-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .main-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 2000px;
+        }
+
+        .interactive-element {
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.1),
+                0 10px 20px rgba(0,0,0,0.05);
+            transform-style: preserve-3d;
+            transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid var(--primary-color);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .interactive-element .text-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(26, 95, 122, 0.9);
+            color: white;
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+
+        .interactive-element:hover {
+            transform: rotateX(15deg) rotateY(15deg) scale(1.05);
+            box-shadow: 
+                0 35px 60px rgba(0,0,0,0.2),
+                0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .interactive-element:hover .text-overlay {
+            opacity: 1;
+        }
+
+        .github-link {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .github-link:hover {
+            color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .github-icon {
+            width: 30px;
+            height: 30px;
+            fill: currentColor;
+        }
+
+        @keyframes particleAnimation {
+            0% { 
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 0.6;
+            }
+            50% { 
+                transform: translateY(-50px) rotate(180deg) scale(1.2);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(0) rotate(360deg) scale(1);
+                opacity: 0.6;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="backgroundCanvas" class="canvas-container"></canvas>
+    
+    <div class="main-content">
+        <div class="interactive-element">
+            <div class="text-overlay">Files IITD</div>
+        </div>
+    </div>
+
+    <a href="https://github.com/files-iitd" class="github-link" target="_blank">
+        <svg class="github-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+        GitHub Organization
+    </a>
+
+    <script>
+        // Advanced background particle system
+        class ParticleSystem {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.particles = [];
+                this.resizeCanvas();
+                this.setupEventListeners();
+                this.createParticles();
+                this.animate();
+            }
+
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            setupEventListeners() {
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+
+            createParticles() {
+                const particleCount = 150;
+                const colors = [
+                    'rgba(26, 95, 122, 0.3)',   // Primary color
+                    'rgba(21, 152, 149, 0.2)',  // Secondary color
+                    'rgba(87, 197, 182, 0.15)' // Accent color
+                ];
+
+                for (let i = 0; i < particleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        radius: Math.random() * 5 + 1,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        speedX: (Math.random() - 0.5) * 0.5,
+                        speedY: (Math.random() - 0.5) * 0.5,
+                        opacity: Math.random() * 0.6 + 0.2
+                    });
+                }
+            }
+
+            drawParticles() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                this.particles.forEach(particle => {
+                    // Update particle position
+                    particle.x += particle.speedX;
+                    particle.y += particle.speedY;
+
+                    // Wrap around screen edges
+                    if (particle.x < 0) particle.x = this.canvas.width;
+                    if (particle.x > this.canvas.width) particle.x = 0;
+                    if (particle.y < 0) particle.y = this.canvas.height;
+                    if (particle.y > this.canvas.height) particle.y = 0;
+
+                    // Draw particle
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                    this.ctx.fillStyle = particle.color;
+                    this.ctx.globalAlpha = particle.opacity;
+                    this.ctx.fill();
+                });
+            }
+
+            animate() {
+                this.drawParticles();
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // Initialize particle system on page load
+        window.addEventListener('load', () => {
+            const backgroundCanvas = document.getElementById('backgroundCanvas');
+            new ParticleSystem(backgroundCanvas);
+        });
+
+        // Interactive element hover effects
+        const interactiveElement = document.querySelector('.interactive-element');
+        interactiveElement.addEventListener('mousemove', (e) => {
+            const rect = interactiveElement.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 20;
+            const rotateY = -(x - centerX) / 20;
+            
+            interactiveElement.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+        });
+
+        interactiveElement.addEventListener('mouseleave', () => {
+            interactiveElement.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+    </script>
+</body>
+</html>
