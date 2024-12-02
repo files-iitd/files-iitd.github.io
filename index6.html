@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Anime World</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a2e;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .character {
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .character:hover {
+            transform: scale(1.1);
+        }
+        .effect {
+            position: absolute;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container"></div>
+
+    <script>
+        const container = document.getElementById('container');
+        const characters = [
+            {
+                svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#FFD700"/>
+                    <circle cx="35" cy="40" r="5" fill="#000"/>
+                    <circle cx="65" cy="40" r="5" fill="#000"/>
+                    <path d="M 35 60 Q 50 80 65 60" fill="none" stroke="#000" stroke-width="3"/>
+                </svg>`,
+                color: '#FFD700'
+            },
+            {
+                svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="10" width="80" height="80" fill="#FF6B6B" rx="10" ry="10"/>
+                    <circle cx="35" cy="40" r="5" fill="#000"/>
+                    <circle cx="65" cy="40" r="5" fill="#000"/>
+                    <line x1="35" y1="60" x2="65" y2="60" stroke="#000" stroke-width="3"/>
+                </svg>`,
+                color: '#FF6B6B'
+            },
+            {
+                svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="50,10 10,90 90,90" fill="#4ECDC4"/>
+                    <circle cx="35" cy="50" r="5" fill="#000"/>
+                    <circle cx="65" cy="50" r="5" fill="#000"/>
+                    <path d="M 35 70 Q 50 80 65 70" fill="none" stroke="#000" stroke-width="3"/>
+                </svg>`,
+                color: '#4ECDC4'
+            }
+        ];
+
+        function createCharacter(character, x, y) {
+            const div = document.createElement('div');
+            div.className = 'character';
+            div.style.left = `${x}px`;
+            div.style.top = `${y}px`;
+            div.innerHTML = character.svg;
+            div.addEventListener('click', () => createEffect(x, y, character.color));
+            container.appendChild(div);
+        }
+
+        function createEffect(x, y, color) {
+            const effect = document.createElement('div');
+            effect.className = 'effect';
+            effect.style.left = `${x}px`;
+            effect.style.top = `${y}px`;
+            effect.innerHTML = `
+                <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="0" fill="${color}">
+                        <animate attributeName="r" from="0" to="50" dur="1s" begin="0s" fill="freeze" />
+                        <animate attributeName="opacity" from="1" to="0" dur="1s" begin="0s" fill="freeze" />
+                    </circle>
+                </svg>
+            `;
+            container.appendChild(effect);
+            setTimeout(() => container.removeChild(effect), 1000);
+        }
+
+        function animateCharacters() {
+            const characters = document.querySelectorAll('.character');
+            characters.forEach(char => {
+                const x = Math.random() * (window.innerWidth - 200);
+                const y = Math.random() * (window.innerHeight - 200);
+                char.style.transition = 'left 2s ease, top 2s ease';
+                char.style.left = `${x}px`;
+                char.style.top = `${y}px`;
+            });
+        }
+
+        function init() {
+            for (let i = 0; i < 5; i++) {
+                const character = characters[Math.floor(Math.random() * characters.length)];
+                const x = Math.random() * (window.innerWidth - 200);
+                const y = Math.random() * (window.innerHeight - 200);
+                createCharacter(character, x, y);
+            }
+            setInterval(animateCharacters, 3000);
+        }
+
+        init();
+
+        window.addEventListener('resize', () => {
+            const characters = document.querySelectorAll('.character');
+            characters.forEach(char => {
+                const x = Math.random() * (window.innerWidth - 200);
+                const y = Math.random() * (window.innerHeight - 200);
+                char.style.left = `${x}px`;
+                char.style.top = `${y}px`;
+            });
+        });
+    </script>
+</body>
+</html>

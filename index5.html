@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curious Minds Lab</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+
+        .section {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #3498db;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .books-svg, .lab-svg, .problem-svg {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 1rem;
+        }
+
+        .interactive-area {
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .problem-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        #solution-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        #check-solution {
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #check-solution:hover {
+            background-color: #27ae60;
+        }
+
+        #result {
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Curious Minds Lab</h1>
+            <p class="tagline">Where Books, Labs, and Problems Ignite Curiosity</p>
+        </header>
+
+        <section class="section">
+            <h2>Explore the World of Books</h2>
+            <svg class="books-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="20" width="15" height="60" fill="#e74c3c" />
+                <rect x="30" y="10" width="15" height="70" fill="#3498db" />
+                <rect x="50" y="30" width="15" height="50" fill="#2ecc71" />
+                <rect x="70" y="15" width="15" height="65" fill="#f39c12" />
+            </svg>
+            <p>Dive into a world of knowledge with our curated collection of books. From classic literature to cutting-edge scientific journals, expand your horizons and fuel your curiosity.</p>
+        </section>
+
+        <section class="section">
+            <h2>Hands-on Lab Experiences</h2>
+            <svg class="lab-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" fill="#ecf0f1" />
+                <path d="M30 70 L50 30 L70 70 Z" fill="#3498db" />
+                <circle cx="50" cy="50" r="5" fill="#e74c3c" />
+            </svg>
+            <p>Step into our state-of-the-art labs and conduct experiments that bring theories to life. Engage in hands-on learning experiences that challenge your understanding and spark new ideas.</p>
+        </section>
+
+        <section class="section">
+            <h2>Problem-Solving Challenges</h2>
+            <svg class="problem-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="10" width="80" height="80" fill="#ecf0f1" />
+                <circle cx="30" cy="30" r="15" fill="#3498db" />
+                <rect x="55" y="20" width="30" height="20" fill="#e74c3c" />
+                <polygon points="20,70 50,50 80,70" fill="#2ecc71" />
+            </svg>
+            <p>Sharpen your analytical skills with our collection of mind-bending problems. From mathematical puzzles to real-world scenarios, challenge yourself and grow your problem-solving abilities.</p>
+        </section>
+
+        <section class="section interactive-area">
+            <h2>Interactive Problem Solving</h2>
+            <p class="problem-text">What is 7 x 8?</p>
+            <input type="number" id="solution-input" placeholder="Enter your answer">
+            <button id="check-solution">Check Solution</button>
+            <p id="result"></p>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkSolutionBtn = document.getElementById('check-solution');
+            const solutionInput = document.getElementById('solution-input');
+            const resultElement = document.getElementById('result');
+
+            checkSolutionBtn.addEventListener('click', () => {
+                const userAnswer = parseInt(solutionInput.value);
+                const correctAnswer = 7 * 8;
+
+                if (userAnswer === correctAnswer) {
+                    resultElement.textContent = 'Correct! Great job!';
+                    resultElement.style.color = '#2ecc71';
+                } else {
+                    resultElement.textContent = 'Oops! Try again.';
+                    resultElement.style.color = '#e74c3c';
+                }
+            });
+
+            // Animate SVGs
+            const svgs = document.querySelectorAll('svg');
+            svgs.forEach(svg => {
+                svg.style.transition = 'transform 0.5s ease';
+                svg.addEventListener('mouseover', () => {
+                    svg.style.transform = 'scale(1.1)';
+                });
+                svg.addEventListener('mouseout', () => {
+                    svg.style.transform = 'scale(1)';
+                });
+            });
+
+            // Random color change for h2 elements
+            const h2Elements = document.querySelectorAll('h2');
+            const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
+
+            setInterval(() => {
+                h2Elements.forEach(h2 => {
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    h2.style.transition = 'color 0.5s ease';
+                    h2.style.color = randomColor;
+                });
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
