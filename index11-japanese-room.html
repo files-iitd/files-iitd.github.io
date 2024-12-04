@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Room</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+        .room {
+            width: 80vmin;
+            height: 60vmin;
+            background-color: #f5e6d3;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+        }
+        .tatami {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to right, #d2b48c, #c0a376);
+            transform: rotateX(70deg) translateZ(-50px);
+            box-shadow: 0 -20px 50px rgba(0,0,0,0.2);
+        }
+        .shoji-screen {
+            position: absolute;
+            width: 70%;
+            height: 80%;
+            left: 15%;
+            top: 10%;
+            background: rgba(255,255,255,0.7);
+            border: 10px solid #8b4513;
+            transform: translateZ(50px);
+            transition: all 0.3s ease;
+        }
+        .shoji-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(139,69,19,0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139,69,19,0.2) 1px, transparent 1px);
+            background-size: 20% 20%;
+            opacity: 0.8;
+        }
+        .plant {
+            position: absolute;
+            width: 100px;
+            height: 150px;
+            background: linear-gradient(to bottom, #2e8b57, #228b22);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            left: 60%;
+            bottom: 30%;
+            transform: rotate(-10deg);
+            transition: all 0.3s ease;
+        }
+        .moon {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 30% 30%, white, #e0e0e0);
+            border-radius: 50%;
+            top: 10%;
+            left: 10%;
+            box-shadow: 0 0 50px rgba(255,255,255,0.7);
+            transition: all 0.3s ease;
+        }
+        .scroll {
+            position: absolute;
+            width: 20px;
+            height: 200px;
+            background: linear-gradient(to right, #d2b48c, #8b4513);
+            right: 10%;
+            bottom: 30%;
+            transform: rotate(15deg);
+            transition: all 0.3s ease;
+        }
+        .room:hover {
+            transform: rotateX(10deg) rotateY(10deg);
+        }
+        .room:hover .shoji-screen {
+            transform: translateZ(80px) scale(1.05);
+        }
+        .room:hover .plant {
+            transform: rotate(-5deg) scale(1.1);
+        }
+        .room:hover .moon {
+            transform: translateY(-10px);
+        }
+        .room:hover .scroll {
+            transform: rotate(10deg) translateX(-10px);
+        }
+        .interactive-area {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="room">
+        <div class="tatami"></div>
+        <div class="shoji-screen">
+            <div class="shoji-grid"></div>
+        </div>
+        <div class="plant"></div>
+        <div class="moon"></div>
+        <div class="scroll"></div>
+        <div class="interactive-area"></div>
+    </div>
+
+    <script>
+        const room = document.querySelector('.room');
+        const interactiveArea = document.querySelector('.interactive-area');
+        const shojiScreen = document.querySelector('.shoji-screen');
+        const plant = document.querySelector('.plant');
+        const moon = document.querySelector('.moon');
+        const scroll = document.querySelector('.scroll');
+
+        // Interactive hover effects
+        interactiveArea.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            const roomRect = room.getBoundingClientRect();
+            
+            // Calculate relative mouse position
+            const xPercent = (clientX - roomRect.left) / roomRect.width * 100;
+            const yPercent = (clientY - roomRect.top) / roomRect.height * 100;
+            
+            // Subtle parallax effect
+            shojiScreen.style.transform = `translateZ(50px) rotateX(${(yPercent - 50) / 10}deg) rotateY(${(xPercent - 50) / 10}deg)`;
+            plant.style.transform = `rotate(${-10 + (xPercent - 50) / 20}deg) scale(${1 + Math.abs(xPercent - 50) / 500})`;
+            moon.style.transform = `translate(${(xPercent - 50) / 50}px, ${-10 + (yPercent - 50) / 50}px)`;
+            scroll.style.transform = `rotate(${15 + (xPercent - 50) / 20}deg) translateX(${(50 - xPercent) / 20}px)`;
+        });
+
+        // Reset positions when mouse leaves
+        interactiveArea.addEventListener('mouseleave', () => {
+            shojiScreen.style.transform = 'translateZ(50px)';
+            plant.style.transform = 'rotate(-10deg)';
+            moon.style.transform = 'none';
+            scroll.style.transform = 'rotate(15deg)';
+        });
+
+        // Day/Night cycle
+        function updateMoodLighting() {
+            const hour = new Date().getHours();
+            const isNight = hour >= 18 || hour < 6;
+            
+            if (isNight) {
+                document.body.style.backgroundColor = '#1c2841';
+                room.style.backgroundColor = '#2c3e50';
+                moon.style.opacity = '1';
+            } else {
+                document.body.style.backgroundColor = '#f0f0f0';
+                room.style.backgroundColor = '#f5e6d3';
+                moon.style.opacity = '0.2';
+            }
+        }
+
+        // Initial lighting setup
+        updateMoodLighting();
+        // Update lighting every minute
+        setInterval(updateMoodLighting, 60000);
+    </script>
+</body>
+</html>
