@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature's Learning Landscape</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 30%, #F0F9FF 100%);
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes drift {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(30px); }
+            100% { transform: translateX(0); }
+        }
+        .cloud {
+            animation: float 10s infinite ease-in-out;
+        }
+        .bird {
+            animation: drift 8s infinite linear;
+        }
+        .flower {
+            transition: all 0.3s ease;
+        }
+        .flower:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+    </style>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+        <!-- Sun -->
+        <circle cx="200" cy="150" r="80" fill="#FFD700" class="cloud"/>
+        
+        <!-- Clouds -->
+        <path d="M300,100 Q350,50 400,100 T500,100" fill="#FFFFFF" class="cloud" opacity="0.7"/>
+        <path d="M800,200 Q850,150 900,200 T1000,200" fill="#FFFFFF" class="cloud" opacity="0.7"/>
+        
+        <!-- Mountains -->
+        <path d="M0,500 L300,200 L600,500 Z" fill="#8B4513" opacity="0.7"/>
+        <path d="M600,500 L900,250 L1200,500 Z" fill="#A0522D" opacity="0.6"/>
+        
+        <!-- Meadow -->
+        <path d="M0,500 L1200,500 L1200,800 L0,800 Z" fill="#90EE90"/>
+        
+        <!-- Birds -->
+        <g class="bird">
+            <path d="M600,150 Q610,140 620,150 Q630,160 640,150" stroke="#333" stroke-width="3" fill="none"/>
+            <path d="M650,160 Q660,150 670,160 Q680,170 690,160" stroke="#333" stroke-width="3" fill="none"/>
+        </g>
+        <g class="bird" transform="translate(300,100)">
+            <path d="M600,150 Q610,140 620,150 Q630,160 640,150" stroke="#333" stroke-width="3" fill="none"/>
+            <path d="M650,160 Q660,150 670,160 Q680,170 690,160" stroke="#333" stroke-width="3" fill="none"/>
+        </g>
+        
+        <!-- Flowers -->
+        <g class="flower">
+            <circle cx="300" cy="600" r="10" fill="#FF69B4"/>
+            <circle cx="290" cy="590" r="5" fill="#FF1493"/>
+            <circle cx="310" cy="590" r="5" fill="#FF1493"/>
+            <circle cx="300" cy="580" r="5" fill="#FF1493"/>
+        </g>
+        <g class="flower">
+            <circle cx="500" cy="650" r="15" fill="#FF4500"/>
+            <circle cx="485" cy="635" r="7" fill="#FF6347"/>
+            <circle cx="515" cy="635" r="7" fill="#FF6347"/>
+            <circle cx="500" cy="620" r="7" fill="#FF6347"/>
+        </g>
+        
+        <!-- Trees -->
+        <g>
+            <rect x="100" y="500" width="30" height="100" fill="#8B4513"/>
+            <path d="M115,400 L50,500 L180,500 Z" fill="#228B22"/>
+        </g>
+        <g>
+            <rect x="900" y="500" width="30" height="100" fill="#8B4513"/>
+            <path d="M915,400 L850,500 L980,500 Z" fill="#228B22"/>
+        </g>
+        
+        <!-- Abstract Learning Symbolism (Subtle Book-Like Shapes) -->
+        <g opacity="0.3">
+            <rect x="700" y="550" width="80" height="100" rx="10" fill="#D2B48C"/>
+            <rect x="420" y="570" width="60" height="80" rx="8" fill="#DEB887"/>
+        </g>
+    </svg>
+</body>
+</html>

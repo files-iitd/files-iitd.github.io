@@ -3,98 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nature's Learning Landscape</title>
+    <title>Dynamic Ecosystem Learning Experience</title>
     <style>
-        body, html {
+        * {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            box-sizing: border-box;
         }
-        svg {
+        body, html {
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background-color: #000;
+            color: #fff;
+        }
+        #ecosystem-container {
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 30%, #F0F9FF 100%);
+            position: relative;
+            overflow: hidden;
         }
-        @keyframes float {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0); }
+        #overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
         }
-        @keyframes drift {
-            0% { transform: translateX(0); }
-            50% { transform: translateX(30px); }
-            100% { transform: translateX(0); }
+        #info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0;
         }
-        .cloud {
-            animation: float 10s infinite ease-in-out;
+        .ecosystem-stat {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 14px;
         }
-        .bird {
-            animation: drift 8s infinite linear;
+        #canvas-background, 
+        #canvas-elements, 
+        #canvas-overlay,
+        #canvas-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
-        .flower {
+        #interaction-cursor {
+            position: absolute;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+        }
+        #season-selector {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .season-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-        .flower:hover {
-            transform: scale(1.1) rotate(5deg);
+        .season-btn:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        #tutorial-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            text-align: center;
+        }
+        #tutorial-content {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
         }
     </style>
 </head>
 <body>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
-        <!-- Sun -->
-        <circle cx="200" cy="150" r="80" fill="#FFD700" class="cloud"/>
+    <div id="ecosystem-container">
+        <canvas id="canvas-background"></canvas>
+        <canvas id="canvas-elements"></canvas>
+        <canvas id="canvas-overlay"></canvas>
+        <canvas id="canvas-particles"></canvas>
         
-        <!-- Clouds -->
-        <path d="M300,100 Q350,50 400,100 T500,100" fill="#FFFFFF" class="cloud" opacity="0.7"/>
-        <path d="M800,200 Q850,150 900,200 T1000,200" fill="#FFFFFF" class="cloud" opacity="0.7"/>
+        <div id="overlay">
+            <div class="ecosystem-stat" id="temperature-stat">🌡️ 20°C</div>
+            <div class="ecosystem-stat" id="biodiversity-stat">🌿 Biodiversity: 75%</div>
+            <div class="ecosystem-stat" id="time-stat">🕒 12:00</div>
+        </div>
         
-        <!-- Mountains -->
-        <path d="M0,500 L300,200 L600,500 Z" fill="#8B4513" opacity="0.7"/>
-        <path d="M600,500 L900,250 L1200,500 Z" fill="#A0522D" opacity="0.6"/>
+        <div id="info-panel">
+            Welcome to the Interactive Ecosystem! Explore and learn.
+        </div>
         
-        <!-- Meadow -->
-        <path d="M0,500 L1200,500 L1200,800 L0,800 Z" fill="#90EE90"/>
+        <div id="season-selector">
+            <button class="season-btn" data-season="spring">🌱 Spring</button>
+            <button class="season-btn" data-season="summer">☀️ Summer</button>
+            <button class="season-btn" data-season="autumn">🍂 Autumn</button>
+            <button class="season-btn" data-season="winter">❄️ Winter</button>
+        </div>
         
-        <!-- Birds -->
-        <g class="bird">
-            <path d="M600,150 Q610,140 620,150 Q630,160 640,150" stroke="#333" stroke-width="3" fill="none"/>
-            <path d="M650,160 Q660,150 670,160 Q680,170 690,160" stroke="#333" stroke-width="3" fill="none"/>
-        </g>
-        <g class="bird" transform="translate(300,100)">
-            <path d="M600,150 Q610,140 620,150 Q630,160 640,150" stroke="#333" stroke-width="3" fill="none"/>
-            <path d="M650,160 Q660,150 670,160 Q680,170 690,160" stroke="#333" stroke-width="3" fill="none"/>
-        </g>
+        <svg id="interaction-cursor" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
         
-        <!-- Flowers -->
-        <g class="flower">
-            <circle cx="300" cy="600" r="10" fill="#FF69B4"/>
-            <circle cx="290" cy="590" r="5" fill="#FF1493"/>
-            <circle cx="310" cy="590" r="5" fill="#FF1493"/>
-            <circle cx="300" cy="580" r="5" fill="#FF1493"/>
-        </g>
-        <g class="flower">
-            <circle cx="500" cy="650" r="15" fill="#FF4500"/>
-            <circle cx="485" cy="635" r="7" fill="#FF6347"/>
-            <circle cx="515" cy="635" r="7" fill="#FF6347"/>
-            <circle cx="500" cy="620" r="7" fill="#FF6347"/>
-        </g>
-        
-        <!-- Trees -->
-        <g>
-            <rect x="100" y="500" width="30" height="100" fill="#8B4513"/>
-            <path d="M115,400 L50,500 L180,500 Z" fill="#228B22"/>
-        </g>
-        <g>
-            <rect x="900" y="500" width="30" height="100" fill="#8B4513"/>
-            <path d="M915,400 L850,500 L980,500 Z" fill="#228B22"/>
-        </g>
-        
-        <!-- Abstract Learning Symbolism (Subtle Book-Like Shapes) -->
-        <g opacity="0.3">
-            <rect x="700" y="550" width="80" height="100" rx="10" fill="#D2B48C"/>
-            <rect x="420" y="570" width="60" height="80" rx="8" fill="#DEB887"/>
-        </g>
-    </svg>
+        <div id="tutorial-modal">
+            <div id="tutorial-content">
+                <h2>Welcome to the Dynamic Ecosystem</h2>
+                <p>Explore an interactive world where every action has a consequence!</p>
+                <ul>
+                    <li>Move your mouse to interact</li>
+                    <li>Click to explore and learn</li>
+                    <li>Change seasons to see ecosystem transformations</li>
+                    <li>Observe how different elements interact</li>
+                </ul>
+                <button id="start-exploration">Start Exploring</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class DynamicEcosystem {
+            constructor() {
+                this.backgroundCanvas = document.getElementById('canvas-background');
+                this.elementsCanvas = document.getElementById('canvas-elements');
+                this.overlayCanvas = document.getElementById('canvas-overlay');
+                this.particlesCanvas = document.getElementById('canvas-particles');
+                
+                this.bgCtx = this.backgroundCanvas.getContext('2d');
+                this.elemCtx = this.elementsCanvas.getContext('2d');
+                this.overlayCtx = this.overlayCanvas.getContext('2d');
+                this.particleCtx = this.particlesCanvas.getContext('2d');
+                
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                
+                this.setupCanvases();
+                this.setupEventListeners();
+                this.initEcosystem();
+            }
+            
+            setupCanvases() {
+                const canvases = [
+                    this.backgroundCanvas, 
+                    this.elementsCanvas, 
+                    this.overlayCanvas,
+                    this.particlesCanvas
+                ];
+                
+                canvases.forEach(canvas => {
+                    canvas.width = this.width;
+                    canvas.height = this.height;
+                });
+            }
+            
+            setupEventListeners() {
+                const interactionCursor = document.getElementById('interaction-cursor');
+                const infoPanel = document.getElementById('info-panel');
+                const tutorialModal = document.getElementById('tutorial-modal');
+                const startButton = document.getElementById('start-exploration');
+                const seasonButtons = document.querySelectorAll('.season-btn');
+                
+                // Cursor tracking
+                document.addEventListener('mousemove', (e) => {
+                    interactionCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+                    this.handleMouseInteraction(e);
+                });
+                
+                // Click interactions
+                document.addEventListener('click', (e) => {
+                    this.createInteractionEffect(e.clientX, e.clientY);
+                });
+                
+                // Season selection
+                seasonButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const season = btn.dataset.season;
+                        this.changeSeason(season);
+                    });
+                });
+                
+                // Tutorial modal
+                startButton.addEventListener('click', () => {
+                    tutorialModal.style.display = 'none';
+                });
+                
+                // Resize handling
+                window.addEventListener('resize', () => {
+                    this.width = window.innerWidth;
+                    this.height = window.innerHeight;
+                    this.setupCanvases();
+                });
+            }
+            
+            initEcosystem() {
+                this.season = 'summer';
+                this.time = 12;
+                this.temperature = 20;
+                this.biodiversity = 75;
+                
+                this.drawBackground();
+                this.animateElements();
+                this.updateStats();
+                this.startDynamicCycle();
+            }
+            
+            drawBackground() {
+                const gradient = this.bgCtx.createLinearGradient(0, 0, 0, this.height);
+                
+                // Dynamic color based on season and time
+                const seasonColors = {
+                    spring: ['#87CEEB', '#E0F6FF', '#F0F9FF'],
+                    summer: ['#1E90FF', '#87CEEB', '#E0F6FF'],
+                    autumn: ['#FF4500', '#FF6347', '#FFA07A'],
+                    winter: ['#87CEFA', '#B0E0E6', '#F0F8FF']
+                };
+                
+                const colors = seasonColors[this.season];
+                gradient.addColorStop(0, colors[0]);
+                gradient.addColorStop(0.5, colors[1]);
+                gradient.addColorStop(1, colors[2]);
+                
+                this.bgCtx.fillStyle = gradient;
+                this.bgCtx.fillRect(0, 0, this.width, this.height);
+            }
+            
+            animateElements() {
+                // Clear previous elements
+                this.elemCtx.clearRect(0, 0, this.width, this.height);
+                
+                // Draw dynamic elements based on season
+                const seasonElements = {
+                    spring: this.drawSpringElements.bind(this),
+                    summer: this.drawSummerElements.bind(this),
+                    autumn: this.drawAutumnElements.bind(this),
+                    winter: this.drawWinterElements.bind(this)
+                };
+                
+                seasonElements[this.season]();
+            }
+            
+            drawSpringElements() {
+                // Blooming flowers, new growth
+                this.drawFlowers(10, '#FF69B4');
+                this.drawBirds(5);
+                this.createNewLifeParticles();
+            }
+            
+            drawSummerElements() {
+                // Lush vegetation, active wildlife
+                this.drawFlowers(15, '#FF4500');
+                this.drawBirds(8);
+                this.createSunEffects();
+            }
+            
+            drawAutumnElements() {
+                // Falling leaves, migrating birds
+                this.drawFallingLeaves();
+                this.drawBirds(6, true);  // Migrating
+                this.createWindEffects();
+            }
+            
+            drawWinterElements() {
+                // Sparse landscape, snow
+                this.drawSnowflakes();
+                this.drawBirds(3);
+                this.createSnowEffects();
+            }
+            
+            drawFlowers(count, color) {
+                for (let i = 0; i < count; i++) {
+                    const x = Math.random() * this.width;
+                    const y = this.height * 0.7 + Math.random() * 100;
+                    
+                    this.elemCtx.beginPath();
+                    this.elemCtx.fillStyle = color;
+                    this.elemCtx.arc(x, y, 10, 0, Math.PI * 2);
+                    this.elemCtx.fill();
+                }
+            }
+            
+            drawBirds(count, migrating = false) {
+                for (let i = 0; i < count; i++) {
+                    const x = Math.random() * this.width;
+                    const y = Math.random() * (this.height * 0.4);
+                    
+                    this.elemCtx.beginPath();
+                    this.elemCtx.moveTo(x, y);
+                    this.elemCtx.lineTo(x + 10, y - 5);
+                    this.elemCtx.lineTo(x + 20, y);
+                    this.elemCtx.strokeStyle = migrating ? '#666' : '#333';
+                    this.elemCtx.lineWidth = 2;
+                    this.elemCtx.stroke();
+                }
+            }
+            
+            handleMouseInteraction(e) {
+                // Subtle ecosystem response to mouse movement
+                const infoPanel = document.getElementById('info-panel');
+                infoPanel.style.opacity = 0.8;
+                
+                setTimeout(() => {
+                    infoPanel.style.opacity = 0;
+                }, 2000);
+            }
+            
+            createInteractionEffect(x, y) {
+                // Particle burst on click
+                for (let i = 0; i < 20; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 5;
+                    
+                    this.particleCtx.beginPath();
+                    this.particleCtx.fillStyle = `hsl(${Math.random() * 360}, 50%, 50%)`;
+                    this.particleCtx.arc(
+                        x + Math.cos(angle) * speed * 10, 
+                        y + Math.sin(angle) * speed * 10, 
+                        Math.random() * 3, 
+                        0, 
+                        Math.PI * 2
+                    );
+                    this.particleCtx.fill();
+                }
+            }
+            
+            changeSeason(season) {
+                this.season = season;
+                this.drawBackground();
+                this.animateElements();
+                this.updateStats();
+            }
+            
+            updateStats() {
+                const tempEl = document.getElementById('temperature-stat');
+                const bioEl = document.getElementById('biodiversity-stat');
+                const timeEl = document.getElementById('time-stat');
+                
+                // Dynamic stat changes based on season
+                const seasonStats = {
+                    spring: { temp: 15, bio: 80, time: '06:00' },
+                    summer: { temp: 25, bio: 90, time: '12:00' },
+                    autumn: { temp: 10, bio: 70, time: '18:00' },
+                    winter: { temp: 0, bio: 50, time: '09:00' }
+                };
+                
+                const stats = seasonStats[this.season];
+                tempEl.textContent = `🌡️ ${stats.temp}°C`;
+                bioEl.textContent = `🌿 Biodiversity: ${stats.bio}%`;
+                timeEl.textContent = `🕒 ${stats.time}`;
+            }
+            
+            startDynamicCycle() {
+                // Periodic ecosystem changes
+                setInterval(() => {
+                    this.updateStats();
+                    this.animateElements();
+                }, 10000);
+            }
+            
+            // Additional specialized methods for different effects
+            createNewLifeParticles() {
+                // Spring-specific particle effects
+            }
+            
+            createSunEffects() {
+                // Summer heat simulation
+            }
+            
+            drawFallingLeaves() {
+                // Autumn leaf animation
+            }
+            
+            drawSnowflakes() {
+                // Winter snow simulation
+            }
+            
+            createWindEffects() {
+                // Wind dynamics for autumn
+            }
+            
+            createSnowEffects() {
+                // Snow and winter weather
+            }
+        } // Close DynamicEcosystem class
+
+        // Create and initialize the ecosystem when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const ecosystem = new DynamicEcosystem();
+        });
+    </script>
 </body>
 </html>
+        
